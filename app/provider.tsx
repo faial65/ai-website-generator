@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios';
 import { useUser } from '@clerk/nextjs';
 import { UserDetailContext } from '@/context/UserDetailContext';
-import { set } from 'date-fns';
 
 function Provider({
   children,
@@ -20,10 +19,13 @@ function Provider({
     }, [user]);
 
     const createNewUser = async () => {
+        try {
             const result = await axios.post('/api/users', {});
-            console.log(result.data);
-            setUserDetail(result.data?.user );
-        
+            console.log('[Provider] User created/fetched:', result.data);
+            setUserDetail(result.data?.user);
+        } catch (error) {
+            console.error('[Provider] Error creating/fetching user:', error);
+        }
     }
 
   return (
