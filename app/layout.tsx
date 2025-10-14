@@ -6,6 +6,7 @@ import {
 } from '@clerk/nextjs';
 import { Provider as TooltipProvider } from "@radix-ui/react-tooltip";
 import AppProvider from "./provider";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -26,6 +27,7 @@ export default function RootLayout({
           <AppProvider>
             <TooltipProvider>
               {children}
+              <Toaster/>
             </TooltipProvider>
           </AppProvider>
         </body>

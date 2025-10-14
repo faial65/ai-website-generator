@@ -1,8 +1,12 @@
 'use client'
 import { Button } from '@/components/ui/button'
-import { SignInButton } from '@clerk/nextjs'
-import { ArrowUp, HomeIcon, ImagePlus, Key, LayoutDashboard, User } from 'lucide-react'
+import { SignInButton, useUser } from '@clerk/nextjs'
+import axios from 'axios'
+import { ArrowUp, HomeIcon, ImagePlus, Key, LayoutDashboard, LoaderIcon, User } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
+import { toast } from 'sonner'
+import { v4 as uuidv4 } from 'uuid';
 
 const suggestion = [
     {
@@ -28,9 +32,45 @@ const suggestion = [
     }
 ]
 
-const Hero = () => {
 
+
+const Hero = () => {
+    const { user } = useUser();
     const [userInput, setUserInput] = useState<string>('');
+    const router=useRouter();
+    const [loading,setLoading]=useState(false);
+
+    const CreateNewProject = async () => {
+        setLoading(true);
+        const projectId=uuidv4();
+        const frameId=generateRandomFrameNumber();
+        const messages=[
+            {
+                role:'user',
+                content:userInput
+            }
+        ]
+
+        try{
+            const result=await axios.post('/api/projects',{
+                projectId: projectId,
+                frameId: frameId,
+                message:messages
+                
+            });
+            toast.success('Project Created Successfully')
+            console.log(result.data);
+            //Navigate to the playground
+            router.push(`/playground/${projectId}?frameId=${frameId}`);
+            setLoading(false);
+        }catch(e){
+            toast.error('Internal server error!')
+            console.log(e);
+            setLoading(false);
+            
+        }
+    }
+
 
   return (
     <div className='flex flex-col items-center h-[80vh] justify-center'>
@@ -47,9 +87,12 @@ const Hero = () => {
             ></textarea>
             <div className='flex justify-between items-center'>
                 <Button variant={'ghost'}><ImagePlus /></Button>
-                <SignInButton mode='modal' forceRedirectUrl={'/workspace'}>
-                <Button disabled={!userInput}><ArrowUp /></Button>
-                </SignInButton>
+                {!user ? <SignInButton mode='modal' forceRedirectUrl={'/workspace'}>
+                    <Button disabled={!userInput}><ArrowUp /></Button>
+                </SignInButton> :
+                <Button disabled={!userInput || loading} onClick={CreateNewProject}>
+                    {loading ? <LoaderIcon className='animate-spin' /> : <ArrowUp />}</Button>
+                }
             </div>
         </div>
 
@@ -64,6 +107,11 @@ const Hero = () => {
         </div>
     </div>
   )
-}
 
+}
 export default Hero
+
+const generateRandomFrameNumber=()=>{
+    const num=Math.floor(Math.random()*1000);
+    return num;
+}
