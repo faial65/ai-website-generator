@@ -5,11 +5,12 @@ import { ArrowUp } from 'lucide-react';
 
 type Props = {
     messages: Messages[],
-    onSend: any
+    onSend: any,
+    loading: boolean
 }
 
 
-const ChatSection = ({messages,onSend}:Props) => {
+const ChatSection = ({messages,onSend,loading}:Props) => {
     const [input,setInput]=useState<string>('');
 
     const handleSend=()=>{
@@ -38,7 +39,13 @@ const ChatSection = ({messages,onSend}:Props) => {
                 ))
             )
         }
-        </div>
+        {loading&& <div className='flex justify-center items-center'>
+                <div className='animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-zinc-800 '></div>
+                <span className='ml-2 text-zinc-800'>Thinking...</span>
+            
+            </div>
+        }
+</div>
 
         {/* Footer Section */}
         <div className='p-3 border-t flex items-center gap-2'>
@@ -49,7 +56,7 @@ const ChatSection = ({messages,onSend}:Props) => {
             px-3 py-2 focus:outline-none focus:ring-2'
             onChange={(event)=> setInput(event.target.value)}
             />
-            <Button ><ArrowUp /></Button>
+            <Button onClick={handleSend} ><ArrowUp /></Button>
         </div>
     </div>
   )

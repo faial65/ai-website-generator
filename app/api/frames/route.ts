@@ -28,11 +28,15 @@ export async function GET(req: NextRequest) {
             .from(framesTable)
             .where(eq(framesTable.frameId, frameId));
 
+        // If frame doesn't exist, return empty data instead of 404
         if (!frameResult || frameResult.length === 0) {
-            return NextResponse.json(
-                { error: 'Frame not found' },
-                { status: 404 }
-            );
+            console.log('[API /api/frames] Frame not found, returning empty data');
+            return NextResponse.json({
+                projectId,
+                frameId,
+                designCode: '',
+                chatMessages: []
+            });
         }
 
         const chatResult = await db
@@ -41,8 +45,10 @@ export async function GET(req: NextRequest) {
             .where(eq(chatTable.frameId, frameId));
 
         const finalResult = {
-            ...frameResult[0],
-            chatMessages: chatResult[0]?.chatMessage || []
+            projectId: frameResult[0].projectId,
+            frameId: frameResult[0].frameId,
+            designCode: frameResult[0].code || '',
+            chatMessages: chatResult.length > 0 ? (chatResult[0]?.chatMessage || []) : []
         };
 
         return NextResponse.json(finalResult);
