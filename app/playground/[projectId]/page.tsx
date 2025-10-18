@@ -130,6 +130,8 @@ const playground = () => {
             const aiResponse = result.data.message;
             console.log('AI Response received, length:', aiResponse.length);
 
+            let updatedMessages: Messages[] = [];
+
             // Check if AI is sending code block
             if (aiResponse.includes('```html')) {
                 const startIndex = aiResponse.indexOf('```html') + 7;
@@ -138,21 +140,34 @@ const playground = () => {
                 
                 console.log('Code extracted, setting generated code...');
                 setGeneratedCode(codeContent);
-                setMessages((prevMessages: any) => [
-                    ...prevMessages, {
-                        role: 'assistant',
-                        content: '[Code Generated]'
-                    }
-                ]);
+                
+                updatedMessages = [
+                    ...messages,
+                    { role: 'user', content: userInput },
+                    { role: 'assistant', content: '[Code Generated]' }
+                ];
+                
+                setMessages(updatedMessages);
             } else {
                 console.log('Text response, adding to messages...');
-                setMessages((prevMessages: any) => [
-                    ...prevMessages, {
-                        role: 'assistant',
-                        content: aiResponse
-                    }
-                ]);
+                
+                updatedMessages = [
+                    ...messages,
+                    { role: 'user', content: userInput },
+                    { role: 'assistant', content: aiResponse }
+                ];
+                
+                setMessages(updatedMessages);
             }
+
+            // Save messages to database
+            await axios.put('/api/chats', {
+                frameId: frameId,
+                projectId: projectId,
+                messages: updatedMessages
+            });
+            console.log('Messages saved to database');
+
         } catch (error) {
             console.error('Error sending message:', error);
             setMessages((prevMessages: any) => [
@@ -181,10 +196,10 @@ const playground = () => {
             />
 
             {/* WebsiteDesignSection */}
-            <Design />
+            <Design generatedCode={generatedCode} />
 
             {/* Settings Section */}
-            <Settings   />
+            {/* <Settings   /> */}
         </div>
         
     </div>
