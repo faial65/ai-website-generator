@@ -33,7 +33,16 @@ const ChatSection = ({messages,onSend,loading}:Props) => {
                     <div key={index}
                     className={`flex ${msg.role==='user'?'justify-end':'justify-start'}`}>
                         <div className={`p-2 rounded-lg max-w-[80%] ${msg.role==='user'?'bg-blue-200 text-black':'bg-gray-300 text-black'}`}>
-                            {msg.content}
+                            {msg.role === 'assistant' && msg.content.includes('<!DOCTYPE') ? (
+                                <div>
+                                    <span className='text-green-700 font-semibold'>✓ Code Generated</span>
+                                    <pre className='mt-2 text-xs overflow-x-auto max-h-40 bg-gray-800 text-white p-2 rounded'>
+                                        {msg.content.substring(0, 200)}...
+                                    </pre>
+                                </div>
+                            ) : (
+                                msg.content
+                            )}
                         </div>
                     </div>
                 ))

@@ -6,6 +6,8 @@ import ImageSettingsSection from './ImageSettingsSection'
 
 type Props = {
     generatedCode:string
+    frameId?: string | null
+    onSave?: (code: string) => Promise<void>
 }
 const HTML_CODE=`<!DOCTYPE html>
 <html lang="en">
@@ -261,7 +263,7 @@ const HTML_CODE=`<!DOCTYPE html>
     {code}
 </body>
 </html>`;
-const Design = ({ generatedCode}:Props) => {
+const Design = ({ generatedCode, frameId, onSave}:Props) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [selectedScreenSize, setSelectedScreenSize] = React.useState<'web' | 'mobile'>('web');
   const [isElementSelected, setIsElementSelected] = React.useState(false);
@@ -546,6 +548,8 @@ const Design = ({ generatedCode}:Props) => {
         setSelectedScreenSize={(v:string)=>setSelectedScreenSize(v as 'web' | 'mobile')}
         generatedCode={generatedCode}
         getCurrentCode={getCurrentCode}
+        frameId={frameId}
+        onSave={onSave}
       />
     </div>
     {isElementSelected && (

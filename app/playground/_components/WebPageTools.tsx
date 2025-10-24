@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button'
-import { CodeIcon, Download, Monitor, SquareArrowOutUpRight, TabletSmartphone } from 'lucide-react'
+import { CodeIcon, Download, Monitor, Save, SquareArrowOutUpRight, TabletSmartphone } from 'lucide-react'
 import React, { useEffect } from 'react'
 import ViewCodeBlock from './ViewCodeBlock';
 
@@ -69,8 +69,9 @@ const HTML_CODE=`<!DOCTYPE html>
 </body>
 </html>`;
 
-const WebPageTools = ({selectedScreenSize,setSelectedScreenSize,generatedCode,getCurrentCode}:any) => {
+const WebPageTools = ({selectedScreenSize,setSelectedScreenSize,generatedCode,getCurrentCode,frameId,onSave}:any) => {
     const [finalCode,setFinalCode]=React.useState<string>("");
+    const [saving,setSaving]=React.useState<boolean>(false);
     
     useEffect(()=>{
         const cleanCode=(HTML_CODE.replace('{code}',generatedCode) || '')
@@ -113,6 +114,22 @@ const WebPageTools = ({selectedScreenSize,setSelectedScreenSize,generatedCode,ge
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
     }
+    
+    const saveCode = async () => {
+        const currentCode = getCurrentCode ? getCurrentCode() : generatedCode;
+        if (!currentCode || !frameId) return;
+        
+        setSaving(true);
+        try {
+            if (onSave) {
+                await onSave(currentCode);
+            }
+        } catch (error) {
+            console.error('Error saving code:', error);
+        } finally {
+            setSaving(false);
+        }
+    }
 
   return (
     <div className='p-2 shadow w-full rounded-2xl flex items-center justify-between'>
@@ -125,6 +142,9 @@ const WebPageTools = ({selectedScreenSize,setSelectedScreenSize,generatedCode,ge
             onClick={()=>setSelectedScreenSize('mobile')}><TabletSmartphone /></Button>
         </div>
         <div className='flex gap-2'>
+            <Button variant={'outline'} onClick={saveCode} disabled={saving || !generatedCode}>
+                {saving ? 'Saving...' : 'Save'} <Save />
+            </Button>
             <Button variant={'outline'} onClick={()=>ViewInNewTab()}>
                 View <SquareArrowOutUpRight />
             </Button>

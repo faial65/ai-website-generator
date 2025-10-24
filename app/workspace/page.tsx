@@ -3,9 +3,8 @@ import Hero from '../_components/Hero'
 
 const Workspace = () => {
   return (
-
     <div>
-          <Hero />
+      <Hero />
     </div>
   )
 }

@@ -141,10 +141,11 @@ const playground = () => {
                 console.log('Code extracted, setting generated code...');
                 setGeneratedCode(codeContent);
                 
+                // Save the actual code content instead of placeholder
                 updatedMessages = [
                     ...messages,
                     { role: 'user', content: userInput },
-                    { role: 'assistant', content: '[Code Generated]' }
+                    { role: 'assistant', content: codeContent }
                 ];
                 
                 setMessages(updatedMessages);
@@ -184,6 +185,21 @@ const playground = () => {
     useEffect(() => {
         console.log(generatedCode); 
     }, [generatedCode]);
+    
+    const handleSaveCode = async (code: string) => {
+        try {
+            console.log('Saving code to database...');
+            await axios.put('/api/frames', {
+                frameId: frameId,
+                code: code
+            });
+            console.log('Code saved successfully!');
+            alert('Code saved successfully!');
+        } catch (error) {
+            console.error('Error saving code:', error);
+            alert('Failed to save code. Please try again.');
+        }
+    }
 
   return (
     <div>
@@ -196,7 +212,11 @@ const playground = () => {
             />
 
             {/* WebsiteDesignSection */}
-            <Design generatedCode={generatedCode} />
+            <Design 
+                generatedCode={generatedCode} 
+                frameId={frameId}
+                onSave={handleSaveCode}
+            />
 
             {/* Settings Section */}
             {/* <Settings   /> */}

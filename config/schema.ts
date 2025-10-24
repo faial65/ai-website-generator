@@ -10,6 +10,7 @@ export const usersTable = pgTable("users", {
 export const projectsTable = pgTable("projects", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   projectId:varchar(),
+  projectName:varchar({ length: 255 }),
   createdBy:varchar().references(() => usersTable.email),
   createAt:timestamp().defaultNow()
 });

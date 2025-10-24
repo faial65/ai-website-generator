@@ -4,6 +4,48 @@ import { currentUser } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
+export async function PUT(req: NextRequest) {
+    try {
+        const user = await currentUser();
+        
+        if (!user) {
+            return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+        }
+
+        const body = await req.json();
+        const { frameId, code } = body;
+
+        if (!frameId || code === undefined) {
+            return NextResponse.json(
+                { error: 'frameId and code are required' },
+                { status: 400 }
+            );
+        }
+
+        console.log('[API /api/frames PUT] Saving code for frameId:', frameId);
+
+        // Update the code in frames table
+        await db
+            .update(framesTable)
+            .set({
+                code: code
+            })
+            .where(eq(framesTable.frameId, frameId));
+
+        return NextResponse.json({
+            success: true,
+            message: 'Code saved successfully'
+        });
+
+    } catch (error) {
+        console.error('[API /api/frames PUT] Error:', error);
+        return NextResponse.json(
+            { error: 'Internal server error', details: String(error) },
+            { status: 500 }
+        );
+    }
+}
+
 export async function GET(req: NextRequest) {
     try {
         const user = await currentUser();
